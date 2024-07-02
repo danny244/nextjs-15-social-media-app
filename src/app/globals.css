@@ -5,3 +5,11 @@
 .height {
       height: calc(100vh - 96px);
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+      display: none;
+}
+
+.scrollbar-hide {
+      scrollbar-width: none;
+}

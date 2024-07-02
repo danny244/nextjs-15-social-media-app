@@ -1,9 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    reactCompiler: true,
-    ppr: 'incremental'
-  },
+      experimental: {
+            reactCompiler: true,
+            ppr: 'incremental'
+      },
+
+      images: {
+            remotePatterns: [
+                  {protocol: 'https',
+                        hostname: 'i.redd.it'},
+                  {protocol: 'https',
+                        hostname: 'images.unsplash.com'}
+            ]
+      }
 };
 
 export default nextConfig;
