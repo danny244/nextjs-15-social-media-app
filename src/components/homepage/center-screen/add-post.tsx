@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 export function AddPost() {
+
       return <div className="p-4 rounded-lg shadow-md bg-white flex gap-4 justify-between text-sm">
 
             {/* Avater */}
@@ -16,9 +17,9 @@ export function AddPost() {
             <div className="flex-1">
 
                   {/* Text Input */}
-                  <div className="flex gap-4">
+                  <form className="flex gap-4">
                         <textarea
-                              name=""
+                              name="desc"
                               id=""
                               placeholder="whats on your mind?"
                               className="bg-slate-100 rounded-lg flex-1 p-2"
@@ -31,7 +32,9 @@ export function AddPost() {
                               height={20}
                               className="w-5 h-5 self-end cursor-pointer"
                         />
-                  </div>
+
+                        {/* <button>Send</button> */}
+                  </form>
 
                   {/* Post Options */}
                   <div className="flex items-center gap-4 mt-4 text-gray-400 flex-wrap">
