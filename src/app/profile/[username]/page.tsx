@@ -1,9 +1,61 @@
 import { Feeds } from "@/components/homepage/center-screen/feeds/feeds";
 import { LeftMenu } from "@/components/homepage/left-screen/left-menu";
 import { RightMenu } from "@/components/homepage/right-screen/right-menu";
+import prisma from "@/lib/client";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
-export default function ProfilePage() {
+export default async function ProfilePage({ params }: { params: { username: string } }) {
+
+      const username = params.username;
+
+      const user = await prisma.user.findFirst({
+            where: {
+                  username: username
+            },
+
+            include: {
+                  _count: {
+                        select: {
+                              followers: true,
+                              followings: true,
+                              posts: true
+                        }
+                  }
+            }
+      })
+
+      if (!user) {
+            return notFound()
+      }
+
+
+      // We are checking if the current user we are looking for has been blocked by us or not
+      const { userId: currentUserId } = auth();
+
+      let isBlocked;
+
+      if (currentUserId) {
+            const res = await prisma.block.findFirst({
+                  where: {
+                        blockerId: user.id,
+                        blockedId: currentUserId
+                  }
+            });
+
+            if (res) {
+                  isBlocked = true;
+            };
+      } else {
+            isBlocked = false
+      }
+
+
+      if (isBlocked) {
+            return notFound()
+      }
+
       return <section className="flex gap-6 p-6">
             <div className="hidden xl:block w-[20%]">
                   <LeftMenu type="profile" />
@@ -17,7 +69,7 @@ export default function ProfilePage() {
                               <div className="w-full h-64 relative">
 
                                     <Image
-                                          src='https://images.unsplash.com/photo-1709668158995-fe822fdc1c40?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDY0fENEd3V3WEpBYkV3fHxlbnwwfHx8fHw%3D'
+                                          src={user.cover || '/noCover.png'}
                                           alt="image"
                                           fill
                                           className="object-cover rounded-md"
@@ -25,7 +77,7 @@ export default function ProfilePage() {
 
 
                                     <Image
-                                          src='https://images.unsplash.com/photo-1704072383973-5f30f9c1076f?w=300&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDgwfENEd3V3WEpBYkV3fHxlbnwwfHx8fHw%3D'
+                                          src={user.avatar || '/noAvatar.png'}
                                           alt="image"
                                           width={128}
                                           height={128}
@@ -34,24 +86,28 @@ export default function ProfilePage() {
 
                               </div>
 
-                              <h1 className="mt-20 mb-4 text-2xl font-medium">Elver Weaver</h1>
+                              <h1 className="mt-20 mb-4 text-2xl font-medium">
+                                    {(user.name && user.surname)
+                                          ? user.name + " " + user.surname
+                                          : user.username}
+                              </h1>
 
                               <div className="flex justify-center items-center gap-12 mb-4">
 
                                     {[1, 2, 3].map((_, i) => {
-                                          let num: string;
+                                          let num: number;
                                           let text: string;
 
                                           if (i == 0) {
-                                                num = '123'
+                                                num = user._count.posts
                                                 text = 'Posts'
 
                                           } else if (i == 1) {
-                                                num = "1.2k"
+                                                num = user._count.followers
                                                 text = 'Followers'
 
                                           } else {
-                                                num = '1.3k'
+                                                num = user._count.followings
                                                 text = 'Following'
                                           }
 
@@ -75,7 +131,7 @@ export default function ProfilePage() {
 
 
             <div className="hidden lg:block w-[30%]">
-                  <RightMenu userId="test" />
+                  <RightMenu user={user} />
             </div>
       </section>
 }

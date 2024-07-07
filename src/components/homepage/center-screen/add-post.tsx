@@ -61,7 +61,7 @@ export function AddPost() {
                               }
 
                               return <div
-                                    key={i}
+                                    key={d}
                                     className="flex items-center cursor-pointer gap-2"
                               >
                                     <Image
