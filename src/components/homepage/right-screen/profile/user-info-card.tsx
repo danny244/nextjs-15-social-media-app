@@ -1,37 +1,112 @@
+import prisma from "@/lib/client";
+import { auth } from "@clerk/nextjs/server";
+import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import { UserInfoCardInteraction } from "./user-info-card-interaction";
+import { UpdateUser } from "./update-profile";
 
-export function UserInfoCard({ userId }: { userId?: string }) {
+export async function UserInfoCard({ user }: { user: User }) {
+
+      const createdDate = new Date(user?.createdAt)
+
+      const formattedData = createdDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+      })
+
+      let isUserBlocked = false;
+      let isFollowing = false;
+      let isFollowingSent = false;
+
+      const { userId: currentUserId } = auth();
+
+      if (currentUserId) {
+            const blockRes = await prisma.block.findFirst({
+                  where: {
+                        blockerId: currentUserId,
+                        blockedId: user.id
+                  }
+            })
+
+            blockRes
+                  ? (isUserBlocked = true)
+                  : (isUserBlocked = false)
+
+
+
+
+            const followRes = await prisma.follower.findFirst({
+                  where: {
+                        followerId: currentUserId,
+                        followingId: user.id
+                  }
+            })
+
+            followRes
+                  ? (isFollowing = true)
+                  : (isFollowing = false)
+
+
+
+            const followReqRes = await prisma.followRequest.findFirst({
+                  where: {
+                        senderId: currentUserId,
+                        receiverId: user.id
+                  }
+            })
+
+            followReqRes
+                  ? (isFollowingSent = true)
+                  : (isFollowingSent = false)
+      }
+
       return <div className="p-4 bg-white rounded-md shadow-md text-sm flex flex-col gap-4">
+
             {/* Top */}
             <div className="flex justify-between items-center">
                   <p className="text-gray-500">User Information</p>
-                  <Link href='/' className="text-blue-500 text-xs">See all</Link>
+                  
+                  {currentUserId === user.id
+                        ? <UpdateUser />
+                        : <Link href='/' className="text-blue-500 text-xs">See all</Link>}
             </div>
 
             {/* Bottom */}
             <div className="flex flex-col gap-4 text-gray-500">
+
                   <div className="flex items-center gap-2">
-                        <p className="text-xl text-black">LLoyed Fleming</p>
-                        <p className="text-sm">@jonathan</p>
+                        <p className="text-xl text-black">
+                              {(user.name && user.surname)
+                                    ? user.name + " " + user.surname
+                                    : user.username}
+                        </p>
+
+
+                        <p className="text-sm">{user.username}</p>
                   </div>
 
-                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores voluptates nesciunt, officia voluptatibus laudantium dignissimos, illum consequatur voluptate itaque similique quidem maxime inventore repellat quam deserunt maiores, incidunt adipisci nihil?</p>
+
+                  {user.description &&
+                        <p>{user.description}</p>
+                  }
+
 
                   {[1, 2, 3].map((_, i) => {
                         let text: string;
                         let image: string;
 
                         if (i == 0) {
-                              text = 'Living in denver'
+                              text = `Living in ${user.city}`
                               image = '/map.png'
 
                         } else if (i == 1) {
-                              text = 'went To Edger hign school'
+                              text = `Went to ${user.school}`
                               image = '/school.png'
 
                         } else if (i == 2) {
-                              text = 'Works at Apple Ind'
+                              text = `Works at ${user.work}`
                               image = '/work.png'
                         }
 
@@ -49,7 +124,7 @@ export function UserInfoCard({ userId }: { userId?: string }) {
                   })}
 
                   <div className="flex items-center justify-between">
-                        <div className="flex gap-1 items-center">
+                        {user.website && <div className="flex gap-1 items-center">
                               <Image
                                     src='/link.png'
                                     alt="image"
@@ -58,12 +133,12 @@ export function UserInfoCard({ userId }: { userId?: string }) {
                               />
 
                               <Link
-                                    href='/'
+                                    href={user.website}
                                     className="text-blue-500 font-medium"
                               >
-                                    lama.dev
+                                    {user.website}
                               </Link>
-                        </div>
+                        </div>}
 
                         <div className="flex gap-1 items-center">
                               <Image
@@ -72,12 +147,17 @@ export function UserInfoCard({ userId }: { userId?: string }) {
                                     width={16}
                                     height={16}
                               />
-                              <p>Joined November 2024</p>
+                              <p>Joined {formattedData}</p>
                         </div>
                   </div>
 
-                  <button className="bg-blue-500 text-sm text-white rounded-md p-2">Follow</button>
-                  <p className="text-red-400 self-end text-xs cursor-pointer">Block User</p>
+                  {currentUserId && currentUserId !== user.id && <UserInfoCardInteraction
+                        userId={user.id}
+                        currentUserId={currentUserId}
+                        isUserBlocked={isUserBlocked}
+                        isFollowing={isFollowing}
+                        isFollowingReqSent={isFollowingSent}
+                  />}
             </div>
       </div>
 }
