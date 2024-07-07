@@ -22,6 +22,7 @@ model User {
       name        String?
       surname     String?
       description String?
+      website     String?
       city        String?
       school      String?
       work        String?
@@ -48,7 +49,7 @@ model Post {
       id Int @id @default(autoincrement())
 
       desc   String?
-      img String?
+      img    String?
       userId String
 
       user User @relation(fields: [userId], references: [id], onDelete: Cascade) // [ onDelete: Cascade ] if the user is deleted delete the users posts also
