@@ -1,6 +1,6 @@
-import { AddPost } from "@/components/homepage/center-screen/add-post";
 import { Feeds } from "@/components/homepage/center-screen/feeds/feeds";
-import { Stories } from "@/components/homepage/center-screen/stories";
+import { AddPost } from "@/components/homepage/center-screen/feeds/posts/add-post";
+import { Stories } from "@/components/homepage/center-screen/stories/stories";
 import { LeftMenu } from "@/components/homepage/left-screen/left-menu";
 import { RightMenu } from "@/components/homepage/right-screen/right-menu";
 

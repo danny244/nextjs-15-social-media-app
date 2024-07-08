@@ -37,7 +37,7 @@ export function FriendRequestsList({ requests }: { requests: RequestWithUser[] }
                   setRequestState((prev) => prev.filter((req) => req.id !== requestId))
 
             } catch (error) {
-                  console.error('An error occured accepting a friend request in [friend-request-list.tsx] ', error);
+                  console.error('An error occured declining a friend request in [friend-request-list.tsx] ', error);
 
             }
       }

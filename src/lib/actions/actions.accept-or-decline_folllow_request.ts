@@ -51,7 +51,7 @@ export const declineFollowReqest = async (userId: string) => {
             const { userId: currentUserId } = auth()
 
             if (!currentUserId) {
-                  throw new Error("You are not verified");
+                  throw new Error("You are not authnticated");
             }
 
 

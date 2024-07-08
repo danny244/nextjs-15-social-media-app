@@ -67,9 +67,11 @@ export async function UserInfoCard({ user }: { user: User }) {
             {/* Top */}
             <div className="flex justify-between items-center">
                   <p className="text-gray-500">User Information</p>
-                  
+
                   {currentUserId === user.id
-                        ? <UpdateUser />
+                        ? <UpdateUser
+                              user={user}
+                        />
                         : <Link href='/' className="text-blue-500 text-xs">See all</Link>}
             </div>
 
@@ -123,7 +125,7 @@ export async function UserInfoCard({ user }: { user: User }) {
                         </div>
                   })}
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-4">
                         {user.website && <div className="flex gap-1 items-center">
                               <Image
                                     src='/link.png'
